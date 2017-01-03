@@ -76,7 +76,7 @@ Try{
        
             } Until ($Conn.Result.Count -lt $Size)
 
-            Write-Host "`n$RTM"
+            Write-Verbose "$RTM"
 
             If ($RTM){
                 $RTM = ($RTM | convertfrom-json)
