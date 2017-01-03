@@ -3,7 +3,7 @@ Param(
     $Token = (Import-Clixml Token.xml)  #So I don't accidentally put it on the internet
 )
 
-#Useful for converting the TS (timestamp) property of API events
+#Useful for converting the TS (timestamp) property of API events (currently not used by this script)
 Function ConvertFrom-UnixTime {
     param(
         [Parameter(Mandatory=$true,ValueFromPipeline=$true)]
