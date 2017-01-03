@@ -3,21 +3,6 @@ Param(
     $Token = (Import-Clixml Token.xml)  #So I don't accidentally put it on the internet
 )
 
-#Useful for converting the TS (timestamp) property of API events (currently not used by this script)
-Function ConvertFrom-UnixTime {
-    param(
-        [Parameter(Mandatory=$true,ValueFromPipeline=$true)]
-        [Int32]$UnixTime
-    )
-    begin {
-        $startdate = Get-Date –Date '01/01/1970' 
-    }
-    process {
-        $timespan = New-Timespan -Seconds $UnixTime
-        $startdate + $timespan
-    }
-}
-
 #Sends simple message responses via the RTM API
 Function Send-SlackMsg
 {
