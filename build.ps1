@@ -104,26 +104,29 @@ If ($Deploy) {
                 If ($Differences){
             
                     If (!$env:APPVEYOR_BUILD_VERSION) { 
-
+                        
+                        Write-Host "$Module : Importing module to establish current version .."
+                        
                         Try{
                             Import-Module $ManifestFullName -Force -ErrorAction Stop
-
-                            $CurVersion = Get-Module $Module | Select-Object -ExpandProperty Version            
+                            $CurVersion = Get-Module $Module | Select-Object -ExpandProperty Version
                             $NewVersion = New-Object -TypeName System.Version -ArgumentList $CurVersion.Major, $CurVersion.Minor, ($CurVersion.Build + 1), 0
                         } Catch {
-                            Throw "$Module : Could not establish new module version. Publish failed."
+                            Throw "$Module : Could not establish new module version."
                         }
 
                     } Else { $NewVersion = $env:APPVEYOR_BUILD_VERSION }
 
                     If (!$NuGetApiKey) { Throw "NuGetApiKey not specified. Cannot publish to PowerShell Gallery." }
 
-                    Write-Host "$Module : Updating module manifest to version $NewVersion .."            
-                        
-                    $ModuleManifest = Get-Content $ManifestFullName -Raw
-                    [regex]::replace($ModuleManifest,'(ModuleVersion = )(.*)',"`$1'$NewVersion'") | Out-File -LiteralPath $ManifestFullName
-               
-                    Write-Host "$Module : Publishing module to the PowerShell Gallery .."
+                    Write-Host "$Module : Updating manifest to version $NewVersion .."
+                    
+                    Try{
+                        $ModuleManifest = Get-Content $ManifestFullName -Raw
+                        [regex]::replace($ModuleManifest,'(ModuleVersion = )(.*)',"`$1'$NewVersion'") | Out-File -LiteralPath $ManifestFullName -ErrorAction Stop
+                    } Catch {
+                        Throw "$Module : Could not update manifest."
+                    }
                 
                 } Else {
                     Write-Host "$Module : The module is already up to date in the Gallery - Exiting." -ForegroundColor Green
@@ -131,16 +134,17 @@ If ($Deploy) {
                 }
             }
         
+            Write-Host "$Module : Publishing module to the PowerShell Gallery .."
+            
             Try { 
-                Write-Host "$Module : Publishing module to the PowerShell Gallery .."   
                 Publish-Module -Path $ModulePath -NuGetApiKey $NuGetApiKey
 
             } Catch { 
-                Throw "$Module : Failed to publish $ModulePath" 
+                Throw "$Module : Could not publish $ModulePath"
             }
             
         } Else {
-            Throw "$Module : Could not locate a module manifest in $pwd\$Module\"      
+            Throw "$Module : Could not locate a module manifest in $pwd\$Module\"
         }
         
         Write-Host "$Module published successfully." -ForegroundColor Green
