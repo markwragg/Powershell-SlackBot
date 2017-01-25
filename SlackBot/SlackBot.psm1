@@ -16,7 +16,7 @@ Function Send-SlackMsg
     $Reply = (New-Object –TypeName PSObject –Prop $Prop) | ConvertTo-Json
 
     $Array = @()
-    $Reply.ToCharArray() | ForEach { $Array += [byte]$_ }          
+    $Reply.ToCharArray() | ForEach-Object { $Array = $Array + [byte]$_ }          
     $Reply = New-Object System.ArraySegment[byte]  -ArgumentList @(,$Array)
 
     $Conn = $WS.SendAsync($Reply, [System.Net.WebSockets.WebSocketMessageType]::Text, [System.Boolean]::TrueString, $CT)
@@ -26,7 +26,7 @@ Function Send-SlackMsg
 }
 
 #Invokes an instance of a bot
-Function Start-SlackBot {
+Function Invoke-SlackBot {
     [cmdletbinding()]
     Param(
         $Token = (Import-Clixml Token.xml)  #So I don't accidentally put it on the internet
@@ -57,7 +57,7 @@ Function Start-SlackBot {
                     $Conn = $WS.ReceiveAsync($Recv, $CT)
                     While (!$Conn.IsCompleted) { Start-Sleep -Milliseconds 100 }
 
-                    $Recv.Array[0..($Conn.Result.Count - 1)] | ForEach { $RTM += [char]$_ }
+                    $Recv.Array[0..($Conn.Result.Count - 1)] | ForEach-Object { $RTM = $RTM + [char]$_ }
 
                 } Until ($Conn.Result.Count -lt $Size)
 
