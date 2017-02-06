@@ -1,5 +1,7 @@
 # Powershell-SlackBot
 
+[![Build status](https://ci.appveyor.com/api/projects/status/au921phlu01ojnyf?svg=true)](https://ci.appveyor.com/project/markwragg/powershell-slackbot)
+
 This project is a PowerShell implementation of a Chat Bot for Slack that utilises the Slack Real Time Messaging (RTM) API. This code is intended to provide a simple framework for anyone that wants to write a Chat Bot for a single Slack Team that is able to respond to Channel and Direct Messages. It would also be simple to extend the code to permit the Bot to respond to any other events exposed via the RTM API.
 
 For more information about how and why this Bot was authored, see my blog post here: http://wragg.io/powershell-slack-bot-using-the-real-time-messaging-api/
