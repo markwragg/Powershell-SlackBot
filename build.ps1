@@ -44,13 +44,7 @@ If ($Test) {
     $Results = Invoke-Pester -Script .\Tests\*.Tests.ps1 -OutputFormat NUnitXml -OutputFile $testResultsFile -PassThru
 
     If ($env:APPVEYOR){
-        #----- Workaround for https://github.com/appveyor/ci/issues/1271 -----
-        [xml]$Content = Get-Content $testResultsFile
-        $Content.'test-results'.'test-suite'.type = "Powershell"
-        $Content.Save("$(Join-Path $pwd $testResultsFile)")
-        #---------------------------------------------------------------------
         Write-Host "Uploading results to AppVeyor .."
-        
         (New-Object 'System.Net.WebClient').UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path $testResultsFile))
     }
 
