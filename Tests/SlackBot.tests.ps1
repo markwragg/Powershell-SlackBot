@@ -2,14 +2,14 @@ $moduleName = 'SlackBot'
 $projectRoot = Resolve-Path "$PSScriptRoot\.."
 $moduleRoot = Split-Path (Resolve-Path "$projectRoot\$moduleName\$moduleName.psm1")
 
-. "$projectRoot\$moduleName\$moduleName.psm1"
+Import-Module (Join-Path $moduleRoot "$moduleName.psm1") -Force
 
 Describe 'Integration Tests' {
 
     Context 'Module Tests' {
 
         It "Module '$moduleName' imports cleanly" {
-            {Import-Module (Join-Path $moduleRoot "$moduleName.psm1") -force } | Should Not Throw
+            {Import-Module (Join-Path $moduleRoot "$moduleName.psm1") -Force } | Should Not Throw
         }
     }
 }
