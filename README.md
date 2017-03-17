@@ -12,13 +12,21 @@ This script uses the .NET class: System.Net.WebSockets.WebSocket. As such the co
 
 ## Getting Started
 
-If you haven't already, you first need to log in to your Slack account and create a Bot under Custom Integrations > Bots. You then need the API token of your Bot which can be passed to Start-SlackBot as a paramater or read from an XML file created via `$Token | Export-CliXML`.
+If you haven't already, you first need to log in to your Slack account and create a Bot under Custom Integrations > Bots. You then need the API token of your Bot which can be passed to Invoke-SlackBot as a paramater or read from an XML file created via `$Token | Export-CliXML`.
 
-Once you have a token, clone the repo on a server/computer running Win 8 or 2012 or above and that has internet connectivity to the Slack API.
+This module is published in the Gallery so if you are running PowerShell 5, you can install the [SlackBot module from the PowerShell Gallery](https://www.powershellgallery.com/packages/SlackBot/1.0.16) via:
 
-Run start-slackbot.ps1 "yourtoken"
+`Install-Module -Name SlackBot`
 
--- Run with the -verbose switch for a more informative console.
+Alternatively download/clone the module folder from this repo on to server/computer running Win 8 or 2012 or above and that has internet connectivity to the Slack API. Copy the module to your modules directory and then load it with:
+
+`Import-Module SlackBot`
+
+Then start the Bot by executing:
+
+`Invoke-SlackBot -token "yourtoken"`
+
+The bot will generate a log file by default in your User Profile directory (C:\Users\youruser\) under \Logs, and all log messages will also appear in the console as either PowerShell standard Verbose, Warning or Error output.
 
 The bot is currently configured to respond to any Direct Messages, or any conversation that includes @botname (whatever you named your Bot) as any word of the message.
 
