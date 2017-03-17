@@ -72,14 +72,16 @@ Describe 'Private Function Tests' {
 
 Describe 'Public Function Tests' {
 
+    @( Get-ChildItem -Path "$moduleRoot\Public\*.ps1" ) | ForEach-Object {
+        . $_.FullName
+    }
     
-
     Write-Host "`t`Invoking SlackBot and waiting 5 seconds for it to connect.." -ForegroundColor Gray
     
     If ($env:TestToken) { $TestToken = $env:TestToken } Else { $TestToken = (Import-Clixml "$env:USERPROFILE\Token.xml") }
     
     $SlackBotJob = Start-Job { 
-        Import-Module (Join-Path $moduleRoot "$moduleName.psm1") -Force
+        Import-Module ("$Using:projectRoot\$Using:moduleName\$Using:moduleName.psm1") -Force
         Invoke-SlackBot -Token $env:TestToken -LogPath "$Env:USERPROFILE\Logs\SlackBot.log"
     }  
     
