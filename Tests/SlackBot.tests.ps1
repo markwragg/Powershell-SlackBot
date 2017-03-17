@@ -2,8 +2,6 @@ $moduleName = 'SlackBot'
 $projectRoot = Resolve-Path "$PSScriptRoot\.."
 $moduleRoot = Split-Path (Resolve-Path "$projectRoot\$moduleName\$moduleName.psm1")
 
-Import-Module (Join-Path $moduleRoot "$moduleName.psm1") -Force
-
 Describe 'Integration Tests' {
 
     Context 'Module Tests' {
@@ -74,17 +72,16 @@ Describe 'Private Function Tests' {
 
 Describe 'Public Function Tests' {
 
-    @( Get-ChildItem -Path "$moduleRoot\Public\*.ps1" ) | ForEach-Object {
-    . $_.FullName
-    }
     
+
     Write-Host "`t`Invoking SlackBot and waiting 5 seconds for it to connect.." -ForegroundColor Gray
     
-    If ($env:TestToken) {
-        $SlackBotJob = Start-Job { Invoke-SlackBot -Token $env:TestToken }        
-    } Else {  
-        $SlackBotJob = Start-Job { Invoke-SlackBot }
-    }
+    If ($env:TestToken) { $TestToken = $env:TestToken } Else { $TestToken = (Import-Clixml "$env:USERPROFILE\Token.xml") }
+    
+    $SlackBotJob = Start-Job { 
+        Import-Module (Join-Path $moduleRoot "$moduleName.psm1") -Force
+        Invoke-SlackBot -Token $env:TestToken 
+    }  
     
     $BotTestChannel = 'G3HAM2NTS'
     
