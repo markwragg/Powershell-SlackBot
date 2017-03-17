@@ -54,7 +54,7 @@
         }
         ElseIf (!(Test-Path $Path)) {
             Write-Verbose "Creating $Path."
-            $NewLogFile = New-Item $Path -Force -ItemType File
+            New-Item $Path -Force -ItemType File | Out-Null
         }
 
         $FormattedDate = Get-Date -Format "yyyy-MM-dd HH:mm:ss"

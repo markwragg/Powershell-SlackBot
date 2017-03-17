@@ -1,8 +1,8 @@
 $moduleName = 'SlackBot'
-$projectRoot = Resolve-Path "$PSScriptRoot\..\.."
+$projectRoot = Resolve-Path "$PSScriptRoot\.."
 $moduleRoot = Split-Path (Resolve-Path "$projectRoot\$moduleName\$moduleName.psm1")
 
-Import-Module "$(Resolve-Path "$projectRoot\$moduleName\$moduleName.psm1")"
+. "$projectRoot\$moduleName\$moduleName.psm1"
 
 Describe 'Integration Tests' {
 
@@ -79,8 +79,13 @@ Describe 'Public Function Tests' {
     }
     
     Write-Host "`t`Invoking SlackBot and waiting 5 seconds for it to connect.." -ForegroundColor Gray
-       
-    $SlackBotJob = Start-Job { Invoke-SlackBot }
+    
+    If ($env:TestToken) {
+        $SlackBotJob = Start-Job { Invoke-SlackBot -Token $env:TestToken }        
+    } Else {  
+        $SlackBotJob = Start-Job { Invoke-SlackBot }
+    }
+    
     $BotTestChannel = 'G3HAM2NTS'
     
     Start-Sleep 5

@@ -1,5 +1,4 @@
-﻿#Sends simple message responses via the RTM API
-Function Send-SlackMsg {
+﻿Function Send-SlackMsg {
 <#
 .SYNOPSIS
   Sends simple message responses via the RTM API
@@ -43,7 +42,8 @@ Function Send-SlackMsg {
     $Msg = (New-Object –TypeName PSObject –Prop $Prop) | ConvertTo-Json
             
     $Array = @()
-    $Msg.ToCharArray() | ForEach { $Array += [byte]$_ }          
+    $Msg.ToCharArray() | ForEach-Object { $Array = $Array + [byte]$_ }
+           
     $Msg = New-Object System.ArraySegment[byte]  -ArgumentList @(,$Array)
 
     $Conn = $WS.SendAsync($Msg, [System.Net.WebSockets.WebSocketMessageType]::Text, [System.Boolean]::TrueString, $CT)

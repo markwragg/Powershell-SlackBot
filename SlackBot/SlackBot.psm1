@@ -1,6 +1,4 @@
-﻿$LogPath = "$Env:USERPROFILE\Logs\SlackBot.log"
-
-# Public functions
+﻿# Public functions
 @( Get-ChildItem -Path "$PSScriptRoot\Public\*.ps1" ) | ForEach-Object {
     . $_.FullName
 }
