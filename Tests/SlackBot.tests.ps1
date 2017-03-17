@@ -80,7 +80,7 @@ Describe 'Public Function Tests' {
     
     $SlackBotJob = Start-Job { 
         Import-Module (Join-Path $moduleRoot "$moduleName.psm1") -Force
-        Invoke-SlackBot -Token $env:TestToken 
+        Invoke-SlackBot -Token $env:TestToken -LogPath "$Env:USERPROFILE\Logs\SlackBot.log"
     }  
     
     $BotTestChannel = 'G3HAM2NTS'
