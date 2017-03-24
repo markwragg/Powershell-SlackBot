@@ -52,10 +52,10 @@ Function Invoke-SlackBot {
 
                                 # *** Responses go here, for example..***
                                 $words = "$($_.text)".ToLower()
-                                while ($words -match "  "){
-                                    $words = $words -replace "  "," "
+                                while ($words -match '  '){
+                                    $words = $words -replace '  ',' '
                                 }
-                                $words = $words -split " " | Where-Object {$_}
+                                $words = $words -split ' '
                                 
                                 Switch ($words){
                                     {@("hey","hello","hi") -contains $_} { Send-SlackMsg -Text 'Hello!' -Channel $RTM.Channel }
