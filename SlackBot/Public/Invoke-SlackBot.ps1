@@ -2,12 +2,12 @@
 Function Invoke-SlackBot {
     [cmdletbinding()]
     Param(
-        $Token = (Import-Clixml Token.xml),  #So I don't accidentally put it on the internet
-        $LogPath = "$Env:USERPROFILE\Logs\SlackBot.log"
+        [string]$Token = (Import-Clixml "$PSscriptPath\..\Token.xml"),  #So I don't accidentally put it on the internet
+        [string]$LogPath = "$Env:USERPROFILE\Logs\SlackBot.log",
+        [string]$PSSlackConfigPath = "$PSscriptPath\..\PSSlackConfig.xml"
     )
     
-    Import-Module 'PSSlack'
-    Set-PSSlackConfig -Path Windows.xml -Token $Token
+    Set-PSSlackConfig -Path $PSSlackConfigPath -Token $Token
     
     #Web API call starts the session and gets a websocket URL to use.
     $RTMSession = Invoke-RestMethod -Uri https://slack.com/api/rtm.start -Body @{token="$Token"}
@@ -51,8 +51,12 @@ Function Invoke-SlackBot {
                                 #A message was sent to the bot
 
                                 # *** Responses go here, for example..***
-                                $words = ($_.text.ToLower() -split " ")
-
+                                $words = "$($_.text)".ToLower()
+                                while ($words -match "  "){
+                                    $words = $words -replace "  "," "
+                                }
+                                $words = $words -split " " | Where-Object {$_}
+                                
                                 Switch ($words){
                                     {@("hey","hello","hi") -contains $_} { Send-SlackMsg -Text 'Hello!' -Channel $RTM.Channel }
                                     {@("bye","cya") -contains $_} { Send-SlackMsg -Text 'Goodbye!' -Channel $RTM.Channel }
