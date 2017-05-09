@@ -1,4 +1,4 @@
-﻿#Invokes an instance of a bot
+#Invokes an instance of a bot
 Function Invoke-SlackBot {
     [cmdletbinding()]
     Param(
@@ -33,7 +33,7 @@ Function Invoke-SlackBot {
         )
     )
     
-    Set-PSSlackConfig -Path $WindowsPath -Token $ClearToken
+    Set-PSSlackConfig -Path $WindowsPath -Token $Token
     
     #Web API call starts the session and gets a websocket URL to use.
     $RTMSession = Invoke-RestMethod -Uri https://slack.com/api/rtm.start -Body @{token="$ClearToken"}
@@ -77,8 +77,12 @@ Function Invoke-SlackBot {
                                 #A message was sent to the bot
 
                                 # *** Responses go here, for example..***
-                                $words = ($_.text.ToLower() -split " ")
-
+                                $words = "$($_.text)".ToLower()
+                                while ($words -match '  '){
+                                    $words = $words -replace '  ',' '
+                                }
+                                $words = $words -split ' '
+                                
                                 Switch ($words){
                                     {@("hey","hello","hi") -contains $_} { Send-SlackMsg -Text 'Hello!' -Channel $RTM.Channel }
                                     {@("bye","cya") -contains $_} { Send-SlackMsg -Text 'Goodbye!' -Channel $RTM.Channel }
