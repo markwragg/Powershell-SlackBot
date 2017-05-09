@@ -15,7 +15,7 @@
     while ($words -match "  "){
         $words = $words -replace "  "," "
     }
-    $words = $words -split " " | ?{$_}
+    $words = $words -split " " | Where-Object { $_ }
 
     
     & (Get-StoredBot -BotName $BotName)

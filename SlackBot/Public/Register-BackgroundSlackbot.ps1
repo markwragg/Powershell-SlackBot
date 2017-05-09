@@ -4,7 +4,7 @@
             [ValidateNotNullOrEmpty()]
             [String]$BotName,
         [Parameter(Mandatory=$false,ValueFromPipelineByPropertyName=$true)]
-            [pscredential]$Credential
+            [pscredential][System.Management.Automation.Credential()]$Credential
     )
     $JobDefinition = @{
         Name = @("SlackBot", $BotName) -join " - "
@@ -19,8 +19,8 @@
         $JobDefinition.ScheduledJobOption =  = New-ScheduledJobOption -MultipleInstancePolicy IgnoreNew -RequireNetwork -RunElevated
     }
 
-    if (($Job = Get-ScheduledJob | ?{$_.Name -match $JobDefinition.Name})){
-        get-job | ?{$_.Name -match $JobDefinition.Name} | Stop-Job
+    if (($Job = Get-ScheduledJob | Where-Object {$_.Name -match $JobDefinition.Name})){
+        get-job | Where-Object {$_.Name -match $JobDefinition.Name} | Stop-Job
         $JobDefinition.Remove("Name")
         $Job | Set-ScheduledJob @JobDefinition
     } else {

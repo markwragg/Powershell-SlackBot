@@ -20,7 +20,7 @@
     begin {
         $RegPath = @('HKCU:','Software','Microsoft','Windows','PowerShell','Bots')
 
-        0..($RegPath.Length-1) | %{
+        0..($RegPath.Length-1) | ForEach-Object {
             $ThisLevel = (-join(($RegPath[0..$_] -join "\"),"\"))
             if (-not (Test-Path $ThisLevel)){
                 Write-Verbose "Creating $ThisLevel"
@@ -44,7 +44,7 @@
                 
             }
         } else {
-            @("Value","PropertyType") | %{
+            @("Value","PropertyType") | ForEach-Object {
                 $PathQuery.Remove($_)
             }
             

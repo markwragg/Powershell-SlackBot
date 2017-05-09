@@ -6,7 +6,7 @@
     DynamicParam {
         
         $settings = @(
-            ($true | select @{
+            ($true | Select-Object @{
                     N="Name"
                     E={"BotName"}
                 },@{
@@ -22,8 +22,8 @@
 
         $paramDictionary = New-Object -Type System.Management.Automation.RuntimeDefinedParameterDictionary
 
-        $count = ($PSBoundParameters | measure).Count - 1
-        $settings | %{
+        $count = ($PSBoundParameters | Measure-Object).Count - 1
+        $settings | ForEach-Object {
             $count++
             $attributes = New-Object System.Management.Automation.ParameterAttribute -Property @{ParameterSetName = "__AllParameterSets";Mandatory = $true;Position = $count;ValueFromPipeline = $true;ValueFromPipelineByPropertyName = $true}
 
@@ -42,18 +42,18 @@
     }
 
     begin {
-        $settings | %{
+        $settings | ForEach-Object {
             New-Variable -Name $_.Name -Value $PSBoundParameters[$_.Name] -WhatIf:$false
         }
         $BotPath = "HKCU:\Software\Microsoft\Windows\PowerShell\Bots"
     }
     process{
         if ($_) {
-            $_.BotName | %{
+            $_.BotName | ForEach-Object {
                 Remove-ItemProperty -Path $BotPath -Name $_
             }
         } else {
-            $BotName | %{
+            $BotName | ForEach-Object {
                 Remove-ItemProperty -Path $BotPath -Name $_
             }
         }
