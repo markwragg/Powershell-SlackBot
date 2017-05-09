@@ -1,16 +1,42 @@
-﻿#Invokes an instance of a bot
+#Invokes an instance of a bot
 Function Invoke-SlackBot {
     [cmdletbinding()]
     Param(
-        [string]$Token = (Import-Clixml "$PSscriptPath\..\Token.xml"),  #So I don't accidentally put it on the internet
-        [string]$LogPath = "$Env:USERPROFILE\Logs\SlackBot.log",
-        [string]$PSSlackConfigPath = "$PSscriptPath\..\PSSlackConfig.xml"
+        [Parameter(Mandatory=$true,ValueFromPipelineByPropertyName=$true)]
+            [ValidateNotNullOrEmpty()]
+            [string]$BotName,
+        [Parameter(Mandatory=$false,ValueFromPipelineByPropertyName=$true)]
+            [ValidateNotNullOrEmpty()]
+            [securestring]$Token = $(
+                if ((Read-StoredKeyList) -notcontains (-join($BotName,"Key"))){
+                    Write-Log -Message "Stored API Key not found - Attempting to create" -Path $LogPath -Level "Error"
+                    Initialize-StoredKey -KeyName (-join($BotName,"Key"))
+                }
+                Get-StoredKey -KeyName (-join($BotName,"Key"))
+            ),
+        [Parameter(Mandatory=$false,ValueFromPipelineByPropertyName=$true)]
+            [ValidateNotNullOrEmpty()]
+            $LogPath = "$Env:USERPROFILE\Logs\SlackBot - $BotName.log",
+        [Parameter(Mandatory=$false,ValueFromPipelineByPropertyName=$true)]
+            [ValidateNotNullOrEmpty()]
+            $WindowsPath = "$PSScriptRoot\..\Windows.XML"
     )
     
-    Set-PSSlackConfig -Path $PSSlackConfigPath -Token $Token
+    if ((Read-StoredKeyList) -notcontains (-join($BotName,"Key"))) {
+        Write-Log -Message "Stored API Key not found" -Path $LogPath -Level "Error"
+        Initialize-StoredKey -KeyName (-join($BotName,"Key"))
+    }
+
+    $ClearToken = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto(
+        [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR(
+            $Token
+        )
+    )
+    
+    Set-PSSlackConfig -Path $WindowsPath -Token $Token
     
     #Web API call starts the session and gets a websocket URL to use.
-    $RTMSession = Invoke-RestMethod -Uri https://slack.com/api/rtm.start -Body @{token="$Token"}
+    $RTMSession = Invoke-RestMethod -Uri https://slack.com/api/rtm.start -Body @{token="$ClearToken"}
     Write-Log "I am $($RTMSession.self.name)" -Path $LogPath
 
     Try{
