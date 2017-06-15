@@ -1,24 +1,22 @@
-#Environment configuration. You only need to set version if you need to exceed an existing version # in PS Gallery
-version: 1.0.{build}
-os: WMF 5
+# See http://www.appveyor.com/docs/appveyor-yml for many more options
 
-install:
-  - ps: . .\build.ps1 -Install
-
+#Publish to PowerShell Gallery with this key
 environment:
   NuGetApiKey:
     secure: +lqWVtVRayO6KNlJeu9lrnzmtGXreNPIr1Fn3dhXxYTJAHHAOPCPVWvFVkRX7wlr
   TestToken:
     secure: ewICObaSpciz3qmbz1pmaonbZpZVNwcG9gMqqEXqro2TgwykxmpkLMLiWgi4oL66
 
-  #Name of module/s to publish in PS Gallery. Use '' for none, '*' for all or a comma separated list: 'orange,pear'
-  ModulesToPublish: '*'
+# Allow WMF5 (i.e. PowerShellGallery functionality)
+os: WMF 5
 
-build_script: 
-  - ps: . .\build.ps1 -Build
+# Skip on updates to the readme.
+# We can force this by adding [skip ci] or [ci skip] anywhere in commit message 
+skip_commits:
+  message: /updated readme.*|update readme.*s/
 
-test_script: 
-  - ps: . .\build.ps1 -Test
+build: false
 
-deploy_script: 
-  - ps: . .\build.ps1 -Deploy
+#Kick off the CI/CD pipeline
+test_script:
+  - ps: . .\build.ps1
