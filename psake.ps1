@@ -76,7 +76,7 @@ Task Deploy -Depends Build {
     }
     "New Version: $NewVersion"
 
-    $FunctionList = (,(Get-ChildItem -Path .\$Env:BHProjectName\Public).BaseName)
+    $FunctionList = @((Get-ChildItem -Path .\$Env:BHProjectName\Public).BaseName)
 
     Update-ModuleManifest -Path $ManifestPath -ModuleVersion $NewVersion -FunctionsToExport $functionList
     (Get-Content -Path $ManifestPath) -replace "PSGet_$Env:BHProjectName", "$Env:BHProjectName" | Set-Content -Path $ManifestPath
