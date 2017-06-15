@@ -12,7 +12,7 @@
  RootModule = 'SlackBot.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.0'
+ModuleVersion = '1.0.0.0'
 
 # ID used to uniquely identify this module
 GUID = '06a9a89b-244f-428a-8cdf-849b7090dc85'
