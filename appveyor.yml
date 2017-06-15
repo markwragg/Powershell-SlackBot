@@ -9,7 +9,7 @@ environment:
   NuGetApiKey:
     secure: +lqWVtVRayO6KNlJeu9lrnzmtGXreNPIr1Fn3dhXxYTJAHHAOPCPVWvFVkRX7wlr
   TestToken:
-    secure: ewICObaSpciz3qmbz1pman4KYV9E+1YDXFMTfpO9m1RBAgXkPjMBcFsV44fDKq50
+    secure: ewICObaSpciz3qmbz1pmaonbZpZVNwcG9gMqqEXqro2TgwykxmpkLMLiWgi4oL66
 
   #Name of module/s to publish in PS Gallery. Use '' for none, '*' for all or a comma separated list: 'orange,pear'
   ModulesToPublish: '*'
