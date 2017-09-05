@@ -42,7 +42,8 @@
     $Msg = (New-Object –TypeName PSObject –Prop $Prop) | ConvertTo-Json
             
     $Array = @()
-    $Msg.ToCharArray() | ForEach-Object { $Array = $Array + [byte]$_ }
+    $Encoding = [System.Text.Encoding]::UTF8
+    $Array = $Encoding.GetBytes($Msg)
            
     $Msg = New-Object System.ArraySegment[byte]  -ArgumentList @(,$Array)
 
