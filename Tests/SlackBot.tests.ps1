@@ -40,10 +40,10 @@ Describe 'Private Function Tests' {
                                           -WarningAction SilentlyContinue } | Should Not Throw
             }
             It "$TestLog should contain '$Message'" {
-                $TestLog | Should Contain $Message
+                $TestLog | Should FileContentMatch $Message
             }
             It "$TestLog should contain '$Level'" {
-                $TestLog | Should Contain $Level
+                $TestLog | Should FileContentMatch $Level
             }
         }
 
