@@ -70,7 +70,7 @@ Describe 'Private Function Tests' {
     }
 }
 
-Describe 'Public Function Tests' {
+Describe 'Public Function Tests' -Tag Integration {
 
     @( Get-ChildItem -Path "$moduleRoot\Public\*.ps1" ) | ForEach-Object {
         . $_.FullName
