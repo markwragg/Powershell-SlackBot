@@ -12,7 +12,7 @@
 RootModule = 'SlackBot.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.0.55'
+ModuleVersion = '1.0.57'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
