@@ -1,7 +1,9 @@
 ﻿# PSScriptAnalyzer tests
+$ExcludeRules = 'PSUseDeclaredVarsMoreThanAssignments','PSAvoidTrailingWhitespace'
+
 $Scripts = Get-ChildItem “$PSScriptRoot\..\” -Filter ‘*.ps1’ -Recurse | Where-Object {$_.name -NotMatch ‘tests.ps1’ -and $_.name -NotMatch 'build.ps1'}
 $Modules = Get-ChildItem “$PSScriptRoot\..\” -Filter ‘*.psm1’ -Recurse
-$Rules   = Get-ScriptAnalyzerRule
+$Rules   = Get-ScriptAnalyzerRule | Where-Object { $_.RuleName -notin $ExcludeRules }
 
 If ($Modules.count -gt 0) {
   Describe ‘Testing all Modules against default PSScriptAnalyzer rule-set’ {
