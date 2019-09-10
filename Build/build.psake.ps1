@@ -154,7 +154,7 @@ Task 'Test' -Depends 'ImportStagingModule' {
     # Gather test results. Store them in a variable and file
     $CodeFiles = (Get-ChildItem $ENV:BHModulePath -Recurse -Include '*.ps1').FullName
     $TestFilePath = Join-Path -Path $ArtifactFolder -ChildPath $TestFile
-    $TestResults = Invoke-Pester -Script $TestScripts -PassThru -CodeCoverage $CodeFiles -OutputFormat 'NUnitXml' -OutputFile $TestFilePath -PesterOption @{IncludeVSCodeMarker = $true }
+    $TestResults = Invoke-Pester -Script $TestScripts -PassThru -CodeCoverage $CodeFiles -OutputFormat 'NUnitXml' -OutputFile $TestFilePath -PesterOption @{IncludeVSCodeMarker = $true } -ExcludeTag 'Integration'
 
     # Fail build if any tests fail
     if ($TestResults.FailedCount -gt 0) {
