@@ -1,10 +1,38 @@
 ﻿#Invokes an instance of a bot
 Function Invoke-SlackBot {
+        <#
+        .SYNOPSIS
+            Start a Slack Bot.
+
+        .DESCRIPTION
+            Starts a long running script which connects to the Slack API via websockets to listen to and
+            respond to Slack messages.
+
+        .PARAMETER Token
+            Your token for connecting to the Slack API.
+
+        .PARAMETER LogPath
+            A path where activity logs should be written, default: $Env:USERPROFILE\Logs\SlackBot.log
+
+        .PARAMETER PSSlackConfigPath
+            Path to the configuration file for the PSSlack module.
+
+        .EXAMPLE
+            Invoke-SlackBot
+
+            Starts the SlackBot which will look for Token.XML and PSSlackConfig.xml in the parent of the
+            current directory for credentials to the Slack API and config for the PSSlack module.
+    #> 
     [cmdletbinding()]
     Param(
-        [string]$Token = (Import-Clixml "$PSscriptPath\..\Token.xml"),  #So I don't accidentally put it on the internet
-        [string]$LogPath = "$Env:USERPROFILE\Logs\SlackBot.log",
-        [string]$PSSlackConfigPath = "$PSscriptPath\..\PSSlackConfig.xml"
+        [string]
+        $Token = (Import-Clixml "$PSscriptPath\..\Token.xml"),  #So I don't accidentally put it on the internet
+
+        [string]
+        $LogPath = "$Env:USERPROFILE\Logs\SlackBot.log",
+
+        [string]
+        $PSSlackConfigPath = "$PSscriptPath\..\PSSlackConfig.xml"
     )
     
     Set-PSSlackConfig -Path $PSSlackConfigPath -Token $Token
