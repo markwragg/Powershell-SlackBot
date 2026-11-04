@@ -6,7 +6,8 @@ Start a Slack Bot.
 ## SYNTAX
 
 ```
-Invoke-SlackBot [[-Token] <String>] [[-LogPath] <String>] [[-PSSlackConfigPath] <String>] [<CommonParameters>]
+Invoke-SlackBot [[-Token] <String>] [[-LogPath] <String>] [[-PSSlackConfigPath] <String>]
+ [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -35,13 +36,13 @@ Aliases:
 
 Required: False
 Position: 1
-Default value: (Import-Clixml "$PSscriptPath\..\Token.xml")
+Default value: (Import-Clixml (Join-Path -Path (Split-Path -Path $PSScriptRoot -Parent) -ChildPath 'Token.xml'))
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
 ### -LogPath
-A path where activity logs should be written, default: $Env:USERPROFILE\Logs\SlackBot.log
+A path where activity logs should be written, default: Logs/SlackBot.log in the current user's profile folder.
 
 ```yaml
 Type: String
@@ -50,7 +51,7 @@ Aliases:
 
 Required: False
 Position: 2
-Default value: "$Env:USERPROFILE\Logs\SlackBot.log"
+Default value: (Join-Path -Path (Join-Path -Path ([Environment]::GetFolderPath('UserProfile')) -ChildPath 'Logs') -ChildPath 'SlackBot.log')
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -65,13 +66,29 @@ Aliases:
 
 Required: False
 Position: 3
-Default value: "$PSscriptPath\..\PSSlackConfig.xml"
+Default value: (Join-Path -Path (Split-Path -Path $PSScriptRoot -Parent) -ChildPath 'PSSlackConfig.xml')
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ProgressAction
+{{Fill ProgressAction Description}}
+
+```yaml
+Type: ActionPreference
+Parameter Sets: (All)
+Aliases: proga
+
+Required: False
+Position: Named
+Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable.
+For more information, see about_CommonParameters (http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 

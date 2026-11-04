@@ -12,7 +12,7 @@
 RootModule = 'SlackBot.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.0.61'
+ModuleVersion = '1.0.63'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -69,7 +69,7 @@ PowerShellVersion = '3.0'
 # NestedModules = @()
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-FunctionsToExport = 'Invoke-SlackBot', 'Send-SlackMsg'
+FunctionsToExport = @('Invoke-SlackBot','Send-SlackMsg')
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
 CmdletsToExport = @()

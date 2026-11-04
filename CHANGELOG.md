@@ -1,6 +1,6 @@
 # Change Log
 
-## !Deploy
+## [1.0.63] - 2026-11-04
 
 * [Fix] `Invoke-SlackBot`'s `-Token`/`-PSSlackConfigPath` defaults referenced a non-existent `$PSscriptPath` variable (typo for `$PSScriptRoot`), silently resolving relative to the current directory instead of the module folder.
 * [Fix] Made the module cross-platform: replaced hardcoded `$Env:USERPROFILE`/`C:\...` path defaults and backslash path separators with `[Environment]::GetFolderPath('UserProfile')`/`Join-Path`/forward slashes, and fixed two stray Unicode en-dash characters that corrupted the built module under Windows PowerShell.
