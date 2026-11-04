@@ -1,7 +1,7 @@
 # Powershell-SlackBot
 
 [![Build Status](https://github.com/markwragg/Powershell-SlackBot/actions/workflows/build.yml/badge.svg)](https://github.com/markwragg/Powershell-SlackBot/actions/workflows/build.yml)
-![coverage](https://img.shields.io/badge/coverage-26%25-red.svg?maxAge=60)
+![coverage](https://img.shields.io/badge/coverage-91%25-brightgreen.svg)
 [![PowerShell Gallery Version](https://img.shields.io/powershellgallery/v/SlackBot?label=PS%20Gallery)](https://www.powershellgallery.com/packages/SlackBot)
 [![PowerShell Gallery Downloads](https://img.shields.io/powershellgallery/dt/SlackBot?color=D3D3D3)](https://www.powershellgallery.com/packages/SlackBot)
 
