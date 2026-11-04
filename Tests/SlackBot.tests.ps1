@@ -142,3 +142,207 @@ Describe 'Public Function Tests' -Tag 'Integration' {
         }
     }
 }
+
+Describe 'Public Function Unit Tests' {
+
+    BeforeAll {
+        @( Get-ChildItem -Path "$moduleRoot/Public/*.ps1" ) | ForEach-Object {
+            . $_.FullName
+        }
+        @( Get-ChildItem -Path "$moduleRoot/Private/*.ps1" ) | ForEach-Object {
+            . $_.FullName
+        }
+
+        # Wait for a Task to complete without blocking on the (single) PowerShell thread.
+        function Wait-Task ($Task) {
+            While (!$Task.IsCompleted) { Start-Sleep -Milliseconds 10 }
+            $Task
+        }
+    }
+
+    Context 'Send-SlackMsg Tests' {
+
+        BeforeAll {
+            $LogPath = 'TestDrive:\SlackBot.log'
+            $CT = New-Object System.Threading.CancellationToken
+        }
+
+        Context 'Without an open WebSocket' {
+
+            BeforeEach {
+                Mock Write-Log {}
+            }
+
+            It 'Logs an error and returns when $WS is not a ClientWebSocket' {
+                $WS = $null
+                Send-SlackMsg -Text 'Hello' -Channel 'C1'
+                Should -Invoke Write-Log -Times 1 -Exactly -ParameterFilter { $Level -eq 'Error' -and $Message -like 'A WebSocket to Slack is not open*' }
+            }
+        }
+
+        Context 'With a connected WebSocket' {
+
+            BeforeAll {
+                $Port = Get-Random -Minimum 20000 -Maximum 40000
+                $Listener = New-Object System.Net.HttpListener
+                $Listener.Prefixes.Add("http://localhost:$Port/")
+                $Listener.Start()
+
+                $Accept = $Listener.GetContextAsync()
+                $WS = New-Object System.Net.WebSockets.ClientWebSocket
+                $Connect = $WS.ConnectAsync("ws://localhost:$Port/", $CT)
+
+                $Context = (Wait-Task $Accept).Result
+                $ServerSocket = (Wait-Task $Context.AcceptWebSocketAsync([NullString]::Value)).Result.WebSocket
+                Wait-Task $Connect | Out-Null
+
+                function Receive-ServerMessage {
+                    $Buffer = New-Object System.ArraySegment[byte] -ArgumentList @(, ([byte[]]::new(4096)))
+                    $Result = (Wait-Task $ServerSocket.ReceiveAsync($Buffer, $CT)).Result
+                    [System.Text.Encoding]::UTF8.GetString($Buffer.Array, 0, $Result.Count) | ConvertFrom-Json
+                }
+            }
+
+            AfterAll {
+                $WS.Dispose()
+                $ServerSocket.Dispose()
+                $Listener.Close()
+            }
+
+            BeforeEach {
+                Mock Write-Log {}
+            }
+
+            It 'Sends the message as JSON over the socket' {
+                Send-SlackMsg -Text 'Hello!' -Channel 'C1' -ID 42
+                $Msg = Receive-ServerMessage
+
+                $Msg.type    | Should -Be 'message'
+                $Msg.text    | Should -Be 'Hello!'
+                $Msg.channel | Should -Be 'C1'
+                $Msg.id      | Should -Be 42
+                Should -Invoke Write-Log -Times 0 -Exactly
+            }
+
+            It 'Uses the current ticks as the default ID' {
+                Send-SlackMsg -Text 'Hi' -Channel 'C2'
+                (Receive-ServerMessage).id | Should -BeGreaterThan 0
+            }
+        }
+
+        Context 'With a WebSocket that is not connected' {
+
+            BeforeAll {
+                $WS = New-Object System.Net.WebSockets.ClientWebSocket
+            }
+
+            AfterAll {
+                $WS.Dispose()
+            }
+
+            It 'Throws when the socket is not open' {
+                { Send-SlackMsg -Text 'Hello' -Channel 'C1' -ErrorAction Stop } | Should -Throw
+            }
+        }
+    }
+
+    Context 'Invoke-SlackBot Tests' {
+
+        BeforeAll {
+            # Captured before New-Object is mocked, so the mock can pass other types through.
+            $RealNewObject = Get-Command -Name New-Object -CommandType Cmdlet
+
+            # Stand-in for the PSSlack module's command so it can be mocked.
+            function Set-PSSlackConfig { param($Path, $Token) }
+
+            function New-FakeWebSocket ([string[]]$Messages) {
+                $Fake = [pscustomobject]@{
+                    State    = 'Open'
+                    Queue    = [System.Collections.Queue]::new($Messages)
+                    Disposed = $false
+                }
+                $Done = [pscustomobject]@{ IsCompleted = $true; Result = $null }
+
+                $Fake | Add-Member -MemberType ScriptMethod -Name ConnectAsync -Value { param($Uri, $Token) $Done }.GetNewClosure()
+                $Fake | Add-Member -MemberType ScriptMethod -Name ReceiveAsync -Value {
+                    param($Buffer, $Token)
+                    $Bytes = [System.Text.Encoding]::UTF8.GetBytes($this.Queue.Dequeue())
+                    [array]::Copy($Bytes, $Buffer.Array, $Bytes.Count)
+                    If ($this.Queue.Count -eq 0) { $this.State = 'Closed' }
+                    [pscustomobject]@{ IsCompleted = $true; Result = [pscustomobject]@{ Count = $Bytes.Count } }
+                }
+                $Fake | Add-Member -MemberType ScriptMethod -Name Dispose -Value { $this.Disposed = $true }
+                $Fake
+            }
+
+            function Invoke-FakeBot ([string[]]$Messages) {
+                $script:FakeWS = New-FakeWebSocket $Messages
+                $script:WsCreated = 0
+                { Invoke-SlackBot -Token 'xoxb-test' -LogPath 'TestDrive:\Bot.log' -PSSlackConfigPath 'TestDrive:\Config.xml' } | Should -Throw -ExpectedMessage 'end of test'
+            }
+        }
+
+        BeforeEach {
+            Mock Set-PSSlackConfig {}
+            Mock Invoke-RestMethod { [pscustomobject]@{ URL = 'wss://example.test/ws'; self = [pscustomobject]@{ id = 'UBOT'; name = 'bot' } } }
+            Mock Write-Log {}
+            Mock Send-SlackMsg {}
+            Mock Start-Sleep {}
+            Mock New-Object { & $RealNewObject @PesterBoundParameters }
+            # The first socket is the fake; a second connection attempt ends the otherwise endless loop.
+            Mock New-Object {
+                $script:WsCreated++
+                If ($script:WsCreated -gt 1) { throw 'end of test' }
+                $script:FakeWS
+            } -ParameterFilter { $TypeName -eq 'System.Net.WebSockets.ClientWebSocket' }
+        }
+
+        It 'Configures PSSlack and starts an RTM session with the token' {
+            Invoke-FakeBot @('{"type":"hello"}')
+            Should -Invoke Set-PSSlackConfig -Times 1 -Exactly -ParameterFilter { $Token -eq 'xoxb-test' }
+            Should -Invoke Invoke-RestMethod -Times 1 -Exactly
+            Should -Invoke Write-Log -ParameterFilter { $Message -eq 'I am bot' }
+        }
+
+        It 'Logs events it has no action for' {
+            Invoke-FakeBot @('{"type":"presence_change"}')
+            Should -Invoke Write-Log -ParameterFilter { $Message -eq 'No action specified for presence_change event' }
+        }
+
+        It 'Disposes of the websocket when finished' {
+            Invoke-FakeBot @('{"type":"hello"}')
+            $script:FakeWS.Disposed | Should -BeTrue
+        }
+
+        It 'Replies Hello! to a greeting sent in a DM' {
+            Invoke-FakeBot @('{"type":"message","channel":"D123","text":"Hi there"}')
+            Should -Invoke Send-SlackMsg -Times 1 -Exactly -ParameterFilter { $Text -eq 'Hello!' -and $Channel -eq 'D123' }
+        }
+
+        It 'Replies Goodbye! when mentioned in a channel' {
+            Invoke-FakeBot @('{"type":"message","channel":"C123","text":"<@UBOT>  cya"}')
+            Should -Invoke Send-SlackMsg -Times 1 -Exactly -ParameterFilter { $Text -eq 'Goodbye!' -and $Channel -eq 'C123' }
+        }
+
+        It 'Does not reply to words it does not recognise' {
+            Invoke-FakeBot @('{"type":"message","channel":"D123","text":"what is the weather"}')
+            Should -Invoke Send-SlackMsg -Times 0 -Exactly
+        }
+
+        It 'Ignores channel messages that do not mention the bot' {
+            Invoke-FakeBot @('{"type":"message","channel":"C123","text":"hello"}')
+            Should -Invoke Send-SlackMsg -Times 0 -Exactly
+            Should -Invoke Write-Log -ParameterFilter { $Message -like 'Message ignored*' }
+        }
+
+        It 'Ignores messages that are replies to the bot' {
+            Invoke-FakeBot @('{"type":"message","channel":"D123","text":"hello","reply_to":5}')
+            Should -Invoke Send-SlackMsg -Times 0 -Exactly
+        }
+
+        It 'Handles a reconnect_url event and processes multiple messages' {
+            Invoke-FakeBot @('{"type":"reconnect_url","url":"wss://new.test/ws"}', '{"type":"message","channel":"D1","text":"bye"}')
+            Should -Invoke Send-SlackMsg -Times 1 -Exactly -ParameterFilter { $Text -eq 'Goodbye!' }
+        }
+    }
+}
