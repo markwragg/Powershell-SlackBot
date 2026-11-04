@@ -9,37 +9,37 @@ Describe 'Module manifest' {
         It 'Has a valid manifest' {
             {
                 $script:manifest = Test-ModuleManifest -Path $env:BHPSModuleManifest -Verbose:$false -ErrorAction 'Stop' -WarningAction 'SilentlyContinue'
-            } | Should Not Throw
+            } | Should -Not -Throw
         }
 
         It 'Has a valid name in the manifest' {
-            $script:manifest.Name | Should Be $env:BHProjectName
+            $script:manifest.Name | Should -Be $env:BHProjectName
         }
 
         It 'Has a valid root module' {
-            $script:manifest.RootModule | Should Be "$($env:BHProjectName).psm1"
+            $script:manifest.RootModule | Should -Be "$($env:BHProjectName).psm1"
         }
 
         It 'Has a valid version in the manifest' {
-            $script:manifest.Version -as [Version] | Should Not BeNullOrEmpty
+            $script:manifest.Version -as [Version] | Should -Not -BeNullOrEmpty
         }
 
         It 'Has a valid description' {
-            $script:manifest.Description | Should Not BeNullOrEmpty
+            $script:manifest.Description | Should -Not -BeNullOrEmpty
         }
 
         It 'Has a valid author' {
-            $script:manifest.Author | Should Not BeNullOrEmpty
+            $script:manifest.Author | Should -Not -BeNullOrEmpty
         }
 
         It 'Has a valid guid' {
             {
                 [guid]::Parse($script:manifest.Guid)
-            } | Should Not throw
+            } | Should -Not -Throw
         }
 
         It 'Has a valid copyright' {
-            $script:manifest.CopyRight | Should Not BeNullOrEmpty
+            $script:manifest.CopyRight | Should -Not -BeNullOrEmpty
         }
 
         # Only for DSC modules
@@ -56,12 +56,12 @@ Describe 'Module manifest' {
                     break
                 }
             }
-            $script:changelogVersion               | Should Not BeNullOrEmpty
-            $script:changelogVersion -as [Version] | Should Not BeNullOrEmpty
+            $script:changelogVersion               | Should -Not -BeNullOrEmpty
+            $script:changelogVersion -as [Version] | Should -Not -BeNullOrEmpty
         }
 
         It 'Has matching changelog and manifest versions' -Skip {
-            $script:changelogVersion -as [Version] | Should be ( $script:manifest.Version -as [Version] )
+            $script:changelogVersion -as [Version] | Should -Be ( $script:manifest.Version -as [Version] )
         }
 
         if (Get-Command -Name 'git.exe' -ErrorAction 'SilentlyContinue') {
@@ -75,8 +75,8 @@ Describe 'Module manifest' {
                     $script:tagVersion = $matches[1]
                 }
 
-                $script:tagVersion               | Should Not BeNullOrEmpty
-                $script:tagVersion -as [Version] | Should Not BeNullOrEmpty
+                $script:tagVersion               | Should -Not -BeNullOrEmpty
+                $script:tagVersion -as [Version] | Should -Not -BeNullOrEmpty
             }
         }
     }

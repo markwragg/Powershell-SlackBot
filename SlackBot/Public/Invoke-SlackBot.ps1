@@ -12,7 +12,7 @@ Function Invoke-SlackBot {
             Your token for connecting to the Slack API.
 
         .PARAMETER LogPath
-            A path where activity logs should be written, default: $Env:USERPROFILE\Logs\SlackBot.log
+            A path where activity logs should be written, default: Logs/SlackBot.log in the current user's profile folder.
 
         .PARAMETER PSSlackConfigPath
             Path to the configuration file for the PSSlack module.
@@ -26,13 +26,13 @@ Function Invoke-SlackBot {
     [cmdletbinding()]
     Param(
         [string]
-        $Token = (Import-Clixml "$PSscriptPath\..\Token.xml"),  #So I don't accidentally put it on the internet
+        $Token = (Import-Clixml (Join-Path -Path (Split-Path -Path $PSScriptRoot -Parent) -ChildPath 'Token.xml')),  #So I don't accidentally put it on the internet
 
         [string]
-        $LogPath = "$Env:USERPROFILE\Logs\SlackBot.log",
+        $LogPath = (Join-Path -Path (Join-Path -Path ([Environment]::GetFolderPath('UserProfile')) -ChildPath 'Logs') -ChildPath 'SlackBot.log'),
 
         [string]
-        $PSSlackConfigPath = "$PSscriptPath\..\PSSlackConfig.xml"
+        $PSSlackConfigPath = (Join-Path -Path (Split-Path -Path $PSScriptRoot -Parent) -ChildPath 'PSSlackConfig.xml')
     )
     
     Set-PSSlackConfig -Path $PSSlackConfigPath -Token $Token

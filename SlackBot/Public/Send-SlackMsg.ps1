@@ -52,7 +52,7 @@
         'channel'  = $Channel
     }
             
-    $Msg = (New-Object –TypeName PSObject –Prop $Prop) | ConvertTo-Json
+    $Msg = (New-Object -TypeName PSObject -Prop $Prop) | ConvertTo-Json
             
     $Array = @()
     $Encoding = [System.Text.Encoding]::UTF8

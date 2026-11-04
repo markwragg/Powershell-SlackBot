@@ -16,11 +16,11 @@
 .PARAMETER NoClobber
    Use NoClobber if you do not wish to overwrite an existing file.
 .EXAMPLE
-   Write-Log -Message 'Log message' 
-   Writes the message to c:\Logs\PowerShellLog.log.
+   Write-Log -Message 'Log message'
+   Writes the message to PowerShellLog.log in the current user's profile folder.
 .EXAMPLE
    Write-Log -Message 'Restarting Server.' -Path c:\Logs\Scriptoutput.log
-   Writes the content to the specified log file and creates the path and file specified. 
+   Writes the content to the specified log file and creates the path and file specified.
 .EXAMPLE
    Write-Log -Message 'Folder does not exist.' -Path c:\Logs\Script.log -Level Error
    Writes the message to the specified log file as an error message, and writes the message to the error pipeline.
@@ -36,7 +36,7 @@
         [string]$Message,
 
         [Alias('LogPath')]
-        [string]$Path='C:\Logs\PowerShellLog.log',
+        [string]$Path=(Join-Path -Path ([Environment]::GetFolderPath('UserProfile')) -ChildPath 'PowerShellLog.log'),
         
         [ValidateSet("Error","Warn","Info")]
         [string]$Level="Info",

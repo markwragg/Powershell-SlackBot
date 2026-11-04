@@ -17,7 +17,7 @@
     )
 
     BEGIN {
-        $StartDate = Get-Date –Date '01/01/1970' 
+        $StartDate = Get-Date -Date '01/01/1970'
     }
     PROCESS {
         $TimeSpan = New-Timespan -Seconds $UnixTime
